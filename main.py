@@ -7,6 +7,7 @@ import sys
 import humanize
 import ftplib
 import dropbox
+import pyAesCrypt
 
 from src import settings
 from src import docker
@@ -44,14 +45,12 @@ while True:
 
             if config.verbose:
                 print("VERBOSE: Login {}@host:{} using Password: {}".format(database.username, database.port, "YES" if len(database.password) > 0 else "NO"))
-                if database.compress:
-                    print("VERBOSE: Compressing backup")
 
             if database.type == DatabaseType.unknown:
                 print("Cannot read database type. Please specify via label.")
 
             network.connect(container, aliases = ["database-backup-target"])
-            outFile = "/dump/{}.sql".format(container.name)
+            outFile = "/dumps/{}_{}.sql".format(container.name, time.strftime("%Y%m%dT%H%M%S"))
             error_code = 0
             error_text = ""
             
@@ -97,20 +96,53 @@ while True:
                 print(f"{error_text}")
             else:
                 if (os.path.exists(outFile)):
+                    noError = True
                     uncompressed_size = os.path.getsize(outFile)
                     if database.compress and uncompressed_size > 0:
+                        if config.verbose: 
+                            print("VERBOSE: Compressing backup file...")
                         if os.path.exists(outFile + ".gz"):
                             os.remove(outFile + ".gz")
-                        subprocess.check_output("gzip {}".format(outFile), shell=True)
+
+                        try:
+                            subprocess.check_output("gzip {}".format(outFile), shell=True)
+                        except Exception as e:
+                            print(f"FAILED. Error Output: {e}")
+                            noError = False
+
                         outFile = outFile + ".gz"
                         compressed_size = os.path.getsize(outFile)
                     else:
                         database.compress = False
 
-                    os.chown(outFile, config.dump_uid, config.dump_gid) # pylint: disable=maybe-no-member
+                    
+                    if noError and database.passphrase != "":
+                        if config.verbose: 
+                            print("VERBOSE: Encrypting backup file...")
 
-                    successful_containers += 1
-                    print("SUCCESS. Size: {}{}".format(humanize.naturalsize(uncompressed_size), " (" + humanize.naturalsize(compressed_size) + " compressed)" if database.compress else ""))
+                        bufferSize = 64 * 1024
+                        outFileEncrypted = outFile + ".aes"
+                    
+                        try:
+                            pyAesCrypt.encryptFile(outFile, outFileEncrypted, database.passphrase, bufferSize)
+                            
+                            os.remove(outFile)
+                            outFile = outFileEncrypted
+                            
+                            compressed_size = os.path.getsize(outFileEncrypted)
+
+                        except Exception as e:
+                            print(f"FAILED. Error Output: {e}")
+                            noError = False
+
+                    if noError:
+                        os.chown(outFile, config.dump_uid, config.dump_gid) # pylint: disable=maybe-no-member
+
+                        successful_containers += 1
+                        print("SUCCESS. File: {} Size: {}{}".format(outFile, 
+                                                                    humanize.naturalsize(uncompressed_size), 
+                                                                    " (" + humanize.naturalsize(compressed_size) + " compressed)" if database.compress else "")
+                                                                )
 
         network.disconnect(own_container_id)
         network.remove()

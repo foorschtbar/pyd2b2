@@ -1,27 +1,24 @@
 FROM python:3-alpine
 
-# RUN set -eux; \
-#     apt-get update; apt-get upgrade -y; \
-#     apt-get install -y \
-#     mariadb-client \
-#     postgresql-client \
-#     tzdata; \
-#     apt-get clean -y && rm -r /var/lib/apt/lists/*
-
+# Install db clients
 RUN set -eux; \
     apk --no-cache add \
     mariadb-client \
     postgresql-client \
     tzdata
 
+# Install requirements for pyAesCrypt (cryptography)
+# https://cryptography.io/en/latest/installation.html#rust
+# https://stackoverflow.com/questions/46221063/what-is-build-deps-for-apk-add-virtual-command
 RUN set -eux; \
-    apk add --no-cache --virtual .pynacl_deps build-base python3-dev libffi-dev
+    apk add --no-cache --virtual .build-deps gcc musl-dev python3-dev libffi-dev openssl-dev cargo
 
 COPY ./requirements.txt ./
 RUN pip install --no-cache-dir -r requirements.txt
 
+# Remove requirements for pyAesCrypt (cryptography) for a smaller image
 RUN set -eux; \
-    apk del .pynacl_deps
+    apk del .build-deps
 
 RUN set -eux; \
     mkdir -p /dump

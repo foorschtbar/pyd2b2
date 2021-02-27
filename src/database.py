@@ -59,6 +59,7 @@ class Database:
     if "username" in values: self.username = values["username"]
     if "password" in values: self.password = values["password"]
     if "compress" in values: self.compress = values["compress"]
+    if "passphrase" in values: self.passphrase = values["passphrase"]
 
   def _get_labels_from_container(self, container):
     labels = {}

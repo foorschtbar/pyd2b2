@@ -8,7 +8,7 @@ CONFIG_DEFAULTS = {
     "verbose": "false",
     "dump_uid": "0",
     "dump_gid": "0",
-    "all_success_url": "",
+    "success_url": "",
 }
 
 LABEL_DEFAULTS = {
@@ -18,7 +18,7 @@ LABEL_DEFAULTS = {
     "type": "auto",
     "port": "auto",
     "compress": "true",
-    "encryption_passphrase": "",
+    "passphrase": "",
     "success_url": "",
 }
 
@@ -33,7 +33,7 @@ class Config:
         self.dump_uid = int(values["dump_uid"])
         self.dump_gid = int(values["dump_gid"])
 
-        self.all_success_url = str(values["all_success_url"])
+        self.success_url = str(values["success_url"])
 
 def read():
     config_values = {}
