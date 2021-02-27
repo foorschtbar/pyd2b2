@@ -1,13 +1,14 @@
 import os
 import distutils.util
 
-LABEL_PREFIX = "jan-di.database-backup."
+LABEL_PREFIX = "foorschtbar.dbbackup."
 
 CONFIG_DEFAULTS = {
     "interval": "3600",
     "verbose": "false",
     "dump_uid": "0",
     "dump_gid": "0",
+    "all_success_url": "",
 }
 
 LABEL_DEFAULTS = {
@@ -16,7 +17,9 @@ LABEL_DEFAULTS = {
     "password": "",
     "type": "auto",
     "port": "auto",
-    "compress": "false",
+    "compress": "true",
+    "encryption_passphrase": "",
+    "success_url": "",
 }
 
 class Config:
@@ -29,6 +32,8 @@ class Config:
 
         self.dump_uid = int(values["dump_uid"])
         self.dump_gid = int(values["dump_gid"])
+
+        self.all_success_url = str(values["all_success_url"])
 
 def read():
     config_values = {}

@@ -1,26 +1,33 @@
-FROM python:3.9-alpine
+FROM python:3-alpine
+
+# RUN set -eux; \
+#     apt-get update; apt-get upgrade -y; \
+#     apt-get install -y \
+#     mariadb-client \
+#     postgresql-client \
+#     tzdata; \
+#     apt-get clean -y && rm -r /var/lib/apt/lists/*
 
 RUN set -eux; \
     apk --no-cache add \
-        mariadb-client \
-        postgresql-client \
-        tzdata
+    mariadb-client \
+    postgresql-client \
+    tzdata
 
 RUN set -eux; \
-    pip install pipenv
+    apk add --no-cache --virtual .pynacl_deps build-base python3-dev libffi-dev
 
-WORKDIR /app
+COPY ./requirements.txt ./
+RUN pip install --no-cache-dir -r requirements.txt
 
-COPY Pipfile .
-COPY Pipfile.lock .
 RUN set -eux; \
-    pipenv install --system
+    apk del .pynacl_deps
 
 RUN set -eux; \
     mkdir -p /dump
 
 ENV PYTHONUNBUFFERED=1
 
-COPY . .
+COPY . ./app/
 
 ENTRYPOINT [ "python3", "/app/main.py" ]

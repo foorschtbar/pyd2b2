@@ -1,3 +1,4 @@
 .github/
-.venv/
 .vscode/
+docker-compose.yml
+dumps/
