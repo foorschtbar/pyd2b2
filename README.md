@@ -27,7 +27,9 @@ Name | Default | Description
 `DUMP_UID` | `-1` | UID of dump files. `-1` means default (docker executing user)
 `DUMP_GID` | `-1` | GID of dump files. `-1` means default (docker executing user)
 `TZ` | UTC | Time Zone for times in log messages
-`SUCCESS_URL` | _empty_ | A url who called after every complete successfull backup cycle
+`SUCCESS_URL` | _empty_ | A url who called after every successfull backup cycle
+`HC_UUID`  | _empty_ | Insert a [HealthChecks.io](https://healthchecks.io/) UUID for monitoring
+`HC_PING_URL`  | `https://hc-ping.com/` | [HealthChecks.io](https://healthchecks.io/) Ping Server URL if you run your own server
 
 You can also define global default values for all container specific labels. Do this by prepending the label name by `GLOBAL_`. For example, to provide a default username, you can set a default value for `foorschtbar.dbbackup.username` by specifying the environment variable `GLOBAL_USERNAME`. See next chapter for reference.
 
@@ -43,7 +45,7 @@ Name | Default | Description
 `password` | (none) | Login password
 `port` | `auto` | Port (inside container). Possible values: `auto` or a valid port number. Auto gets the default port corresponding to the type.
 `compress` | `false` | Compress SQL Dump with gzip
-`passphrase` | _empty_ | A passphrase to encrypt the backup files. No encryption if empty.
+`encryption_passphrase` | _empty_ | A passphrase to encrypt the backup files. No encryption if empty.
 
 ## Example
 

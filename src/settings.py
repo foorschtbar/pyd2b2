@@ -9,6 +9,8 @@ CONFIG_DEFAULTS = {
     "dump_uid": "0",
     "dump_gid": "0",
     "success_url": "",
+    "hc_uuid": "",
+    "hc_ping_url": "https://hc-ping.com/",
 }
 
 LABEL_DEFAULTS = {
@@ -18,8 +20,7 @@ LABEL_DEFAULTS = {
     "type": "auto",
     "port": "auto",
     "compress": "true",
-    "passphrase": "",
-    "success_url": "",
+    "encryption_passphrase": "",
 }
 
 class Config:
@@ -34,6 +35,8 @@ class Config:
         self.dump_gid = int(values["dump_gid"])
 
         self.success_url = str(values["success_url"])
+        self.hc_uuid = str(values["hc_uuid"])
+        self.hc_ping_url = str(values["hc_ping_url"])
 
 def read():
     config_values = {}

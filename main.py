@@ -8,6 +8,7 @@ import humanize
 import ftplib
 import dropbox
 import pyAesCrypt
+import requests
 
 from src import settings
 from src import docker
@@ -25,6 +26,16 @@ while True:
 
     if len(containers):
         print(f"Starting backup cycle with {len(containers)} container(s)..")
+
+        if config.hc_uuid != "":
+            hcurl = config.hc_ping_url + config.hc_uuid + "/start"
+            if config.verbose: 
+                    print(f"VERBOSE: Start time measuring to Healthchecks.io ({hcurl})...")
+            try:
+                requests.get(hcurl, timeout=10)
+
+            except requests.RequestException as e:
+                print(f"FAILED. Start time measuring to Healthchecks.io. Error Output: {e}")
 
         own_container_id = subprocess.check_output("basename $(cat /proc/1/cpuset)", shell=True, text=True).strip()
         successful_containers = 0
@@ -53,6 +64,9 @@ while True:
             outFile = "/dumps/{}_{}.sql".format(container.name, time.strftime("%Y%m%dT%H%M%S"))
             error_code = 0
             error_text = ""
+
+            if config.verbose: 
+                 print("VERBOSE: Dumping all databases...")
             
             try:
                 env = os.environ.copy()
@@ -100,7 +114,7 @@ while True:
                     uncompressed_size = os.path.getsize(outFile)
                     if database.compress and uncompressed_size > 0:
                         if config.verbose: 
-                            print("VERBOSE: Compressing backup file...")
+                            print(f"VERBOSE: Compressing {humanize.naturalsize(uncompressed_size)}...")
                         if os.path.exists(outFile + ".gz"):
                             os.remove(outFile + ".gz")
 
@@ -116,19 +130,20 @@ while True:
                         database.compress = False
 
                     
-                    if noError and database.passphrase != "":
+                    if noError and database.encryption_passphrase != "":
                         if config.verbose: 
-                            print("VERBOSE: Encrypting backup file...")
+                            filesize = os.path.getsize(outFile)
+                            print(f"VERBOSE: Encrypting {humanize.naturalsize(filesize)}...")
 
                         bufferSize = 64 * 1024
                         outFileEncrypted = outFile + ".aes"
                     
                         try:
-                            pyAesCrypt.encryptFile(outFile, outFileEncrypted, database.passphrase, bufferSize)
+                            pyAesCrypt.encryptFile(outFile, outFileEncrypted, database.encryption_passphrase, bufferSize)
                             
                             os.remove(outFile)
                             outFile = outFileEncrypted
-                            
+
                             compressed_size = os.path.getsize(outFileEncrypted)
 
                         except Exception as e:
@@ -139,14 +154,39 @@ while True:
                         os.chown(outFile, config.dump_uid, config.dump_gid) # pylint: disable=maybe-no-member
 
                         successful_containers += 1
-                        print("SUCCESS. File: {} Size: {}{}".format(outFile, 
+                        print("SUCCESS. File: {} ({}{})".format(outFile, 
                                                                     humanize.naturalsize(uncompressed_size), 
-                                                                    " (" + humanize.naturalsize(compressed_size) + " compressed)" if database.compress else "")
+                                                                    ", " + humanize.naturalsize(compressed_size) + " compressed" if database.compress else "")
                                                                 )
 
         network.disconnect(own_container_id)
         network.remove()
-        print(f"Finished backup cycle. {successful_containers}/{len(containers)} successful.")
+
+        all_backups_successfull = (successful_containers == len(containers))
+        msg = f"Finished backup cycle. {successful_containers}/{len(containers)} successful."
+
+        # Send request on success
+        if config.success_url != "" and all_backups_successfull:
+            
+            if config.verbose: 
+                    print(f"VERBOSE: Send request to success url ({config.success_url})...")
+            try:
+                requests.get(config.success_url, timeout=10)
+            except requests.RequestException as e:
+                print(f"FAILED. Send request to success url ({config.success_url}) failed. Error Output: {e}")
+        
+        if config.hc_uuid != "":
+            hcurl = config.hc_ping_url + config.hc_uuid if all_backups_successfull else hcurl + "/fail"
+            data = msg
+            if config.verbose: 
+                    print(f"VERBOSE: Send ping to Healthchecks.io ({hcurl})...")
+            try:
+                requests.put(hcurl, data=data, timeout=10)
+
+            except requests.RequestException as e:
+                print(f"FAILED. Sending a ping to Healthchecks.io failed. Error Output: {e}")
+
+        print(msg)
     else:
         print("No databases to backup")
 
