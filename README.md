@@ -27,7 +27,7 @@ Name | Default | Description
 `SUCCESS_URL` | (none) | A url who called after every successfull backup cycle
 `HC_UUID`  | (none) | Insert a [HealthChecks.io](https://healthchecks.io/) UUID for monitoring
 `HC_PING_URL`  | `https://hc-ping.com/` | [HealthChecks.io](https://healthchecks.io/) Ping Server URL if you run your own server
-`VERBOSE` | `false` | Increased output
+`DEBUG` | `false` | Increased output
 `DUMP_UID` | `-1` | UID of dump files. `-1` means default (docker executing user)
 `DUMP_GID` | `-1` | GID of dump files. `-1` means default (docker executing user)
 

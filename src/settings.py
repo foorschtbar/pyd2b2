@@ -1,11 +1,12 @@
 import os
 import distutils.util
 from croniter import croniter
+import logging
 
 LABEL_PREFIX = "foorschtbar.dbbackup."
 
 CONFIG_DEFAULTS = {
-    "verbose": "false",
+    "debug": "false",
     "dump_uid": "0",
     "dump_gid": "0",
     "success_url": "",
@@ -26,14 +27,17 @@ LABEL_DEFAULTS = {
 
 class Config:
     def __init__(self, values):
-        self.verbose = distutils.util.strtobool(values["verbose"])
+        self.debug = distutils.util.strtobool(values["debug"])
+        if self.debug:
+            self.logginglevel = logging.DEBUG
+        else:
+            self.logginglevel = logging.INFO
         self.dump_uid = int(values["dump_uid"])
         self.dump_gid = int(values["dump_gid"])
         self.success_url = str(values["success_url"])
         self.hc_uuid = str(values["hc_uuid"])
         self.hc_ping_url = str(values["hc_ping_url"])
         self.schedule = str(values["schedule"])
-
         if self.schedule and not croniter.is_valid(self.schedule):
             raise AttributeError("Invalid schedule syntax")
 
