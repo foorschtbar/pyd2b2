@@ -1,16 +1,17 @@
 import os
 import distutils.util
+from croniter import croniter
 
 LABEL_PREFIX = "foorschtbar.dbbackup."
 
 CONFIG_DEFAULTS = {
-    "interval": "3600",
     "verbose": "false",
     "dump_uid": "0",
     "dump_gid": "0",
     "success_url": "",
     "hc_uuid": "",
     "hc_ping_url": "https://hc-ping.com/",
+    "schedule": "",
 }
 
 LABEL_DEFAULTS = {
@@ -25,18 +26,21 @@ LABEL_DEFAULTS = {
 
 class Config:
     def __init__(self, values):
-        self.interval = int(values["interval"])
-        if self.interval < 0:
-            raise AttributeError("Interval must be positive")
-
         self.verbose = distutils.util.strtobool(values["verbose"])
-
         self.dump_uid = int(values["dump_uid"])
         self.dump_gid = int(values["dump_gid"])
-
         self.success_url = str(values["success_url"])
         self.hc_uuid = str(values["hc_uuid"])
         self.hc_ping_url = str(values["hc_ping_url"])
+        self.schedule = str(values["schedule"])
+
+        if self.schedule and not croniter.is_valid(self.schedule):
+            raise AttributeError("Invalid schedule syntax")
+
+        if self.schedule:
+            self.singlerun = False
+        else: 
+            self.singlerun = True
 
 def read():
     config_values = {}

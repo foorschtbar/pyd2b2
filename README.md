@@ -22,14 +22,14 @@ Configure the backup service by specifying environment variables:
 
 Name | Default | Description
 --- | --- | ---
-`INTERVAL` | `3600` | Amount of seconds to wait between each backup cycle. Set to `0` to make a one-time backup.
+`TZ` | `UTC` | Time zone for schedule and times in log messages
+`SCHEDULE` | (none) | Backup interval in [cron like format](http://en.wikipedia.org/wiki/Cron). If _empty_ or _not set_, the cycle runs only once (one-time backup).
+`SUCCESS_URL` | (none) | A url who called after every successfull backup cycle
+`HC_UUID`  | (none) | Insert a [HealthChecks.io](https://healthchecks.io/) UUID for monitoring
+`HC_PING_URL`  | `https://hc-ping.com/` | [HealthChecks.io](https://healthchecks.io/) Ping Server URL if you run your own server
 `VERBOSE` | `false` | Increased output
 `DUMP_UID` | `-1` | UID of dump files. `-1` means default (docker executing user)
 `DUMP_GID` | `-1` | GID of dump files. `-1` means default (docker executing user)
-`TZ` | UTC | Time Zone for times in log messages
-`SUCCESS_URL` | _empty_ | A url who called after every successfull backup cycle
-`HC_UUID`  | _empty_ | Insert a [HealthChecks.io](https://healthchecks.io/) UUID for monitoring
-`HC_PING_URL`  | `https://hc-ping.com/` | [HealthChecks.io](https://healthchecks.io/) Ping Server URL if you run your own server
 
 You can also define global default values for all container specific labels. Do this by prepending the label name by `GLOBAL_`. For example, to provide a default username, you can set a default value for `foorschtbar.dbbackup.username` by specifying the environment variable `GLOBAL_USERNAME`. See next chapter for reference.
 
@@ -52,16 +52,17 @@ Name | Default | Description
 Example docker-compose.yml:
 
 ```yml
-version: '3.8'
+version: "3"
 
 services:
   db-backup: # backup service
     image: foorschtbar/dbbackup
     environment:
       - TZ=Europe/Berlin
-      - INTERVAL=600
+      - SCHEDULE=0 */12 * * *
       - GLOBAL_USERNAME=root
-      - ENCRYPTION_PASSPHRASE=secret-password
+      - GLOBAL_ENCRYPTION_PASSPHRASE=secret-password
+      - HC_UUID=aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
 

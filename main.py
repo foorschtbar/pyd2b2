@@ -9,6 +9,7 @@ import ftplib
 import dropbox
 import pyAesCrypt
 import requests
+from croniter import croniter
 
 from src import settings
 from src import docker
@@ -17,7 +18,30 @@ from src.database import Database, DatabaseType
 config, global_labels = settings.read()
 docker_client = docker.get_client()
 
+def nextRun(silent=False):
+    iter = croniter(config.schedule, datetime.datetime.now())
+    nextrun = iter.get_next(datetime.datetime)
+    if not silent:
+        print(f"Next run at {nextrun}")
+    return nextrun
+
+print(f"+++ Welcome to dbbackup! +++")
+
+if config.singlerun:
+    print("SCHEDULE value is empty, fallback to one-time backup")
+else:
+    nextrun = nextRun(True)
+    print(f"Schedule is activated. First run at {nextrun}")
+
 while True:
+
+    if config.schedule:
+        diff = nextrun-datetime.datetime.now()
+        #print(f"{datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')} | {nextrun} | {diff.total_seconds()}")
+        if diff.total_seconds() >= 0:
+            time.sleep(5)
+            continue
+
     containers = docker_client.containers.list(
         filters = {
             "label": settings.LABEL_PREFIX + "enable=true"
@@ -190,10 +214,8 @@ while True:
     else:
         print("No databases to backup")
 
-    if config.interval > 0:
-        nextRun = datetime.datetime.now() + datetime.timedelta(seconds=config.interval)
-        print("Scheduled next run at {}..".format(nextRun.strftime("%Y-%m-%d %H:%M:%S")))
-
-        time.sleep(config.interval)
-    else:
+    if config.singlerun:
         sys.exit()
+    
+    if config.schedule:
+        nextrun = nextRun()
