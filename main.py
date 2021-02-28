@@ -34,7 +34,7 @@ def main():
         iter = croniter(config.schedule, datetime.datetime.now())
         nextrun = iter.get_next(datetime.datetime)
         if not silent:
-            logging.info(f"Next run at {nextrun}")
+            logging.info(f"Next backup cycle will be at {nextrun}")
         return nextrun
 
     logging.info(f"+++ Welcome to dbbackup! +++")
@@ -43,7 +43,7 @@ def main():
         logging.info("SCHEDULE value is empty, fallback to one-time backup")
     else:
         nextrun = nextRun(True)
-        logging.info(f"Schedule is activated. First run at {nextrun}")
+        logging.info(f"Schedule is activated. Next backup cycle will be at {nextrun}")
 
     # clean up old networks
     logging.debug("Clean up old networks...")
