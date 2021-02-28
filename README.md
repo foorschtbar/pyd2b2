@@ -30,6 +30,7 @@ Name | Default | Description
 `DEBUG` | `false` | Increased output
 `DUMP_UID` | `-1` | UID of dump files. `-1` means default (docker executing user)
 `DUMP_GID` | `-1` | GID of dump files. `-1` means default (docker executing user)
+`HELPER_NETWORK_NAME` | `dbbackup-helpernet` | Name of the temporary created network that dbbackup uses to connect to containers
 
 You can also define global default values for all container specific labels. Do this by prepending the label name by `GLOBAL_`. For example, to provide a default username, you can set a default value for `foorschtbar.dbbackup.username` by specifying the environment variable `GLOBAL_USERNAME`. See next chapter for reference.
 

@@ -45,6 +45,20 @@ def main():
         nextrun = nextRun(True)
         logging.info(f"Schedule is activated. First run at {nextrun}")
 
+    # clean up old networks
+    logging.debug("Clean up old networks...")
+    oldnetworks = docker_client.networks.list(names=config.helper_network_name,greedy=True)
+    if len(oldnetworks):
+        for i, oldnetwork in enumerate(oldnetworks):
+            logging.debug(f"Remove network {i+1}/{len(oldnetworks)}: {oldnetwork.id}...")
+            for i, connected_container in enumerate(oldnetwork.containers):
+                logging.debug(f"Remove network from container {i+1}/{len(oldnetwork.containers)}: {connected_container.name}...")
+                docker_client.networks.get(oldnetwork.id).disconnect(connected_container.id,force=True)
+            docker_client.networks.get(oldnetwork.id).remove()
+        logging.debug("Clean up old networks done!")
+    else:
+        logging.debug(f"Nothing to clean up")
+
     while True:
 
         if config.schedule:
@@ -75,7 +89,7 @@ def main():
             own_container_id = subprocess.check_output("basename $(cat /proc/1/cpuset)", shell=True, text=True).strip()
             successful_containers = 0
 
-            network = docker_client.networks.create("docker-database-backup")
+            network = docker_client.networks.create(config.helper_network_name)
             network.connect(own_container_id)
 
             for i, container in enumerate(containers):
@@ -222,7 +236,7 @@ def main():
         if config.singlerun:
             logging.info("Program terminated")
             sys.exit()
-        else if config.schedule:
+        elif config.schedule:
             nextrun = nextRun()
 
 if __name__ == '__main__':

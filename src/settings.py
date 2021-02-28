@@ -13,6 +13,7 @@ CONFIG_DEFAULTS = {
     "hc_uuid": "",
     "hc_ping_url": "https://hc-ping.com/",
     "schedule": "",
+    "helper_network_name": "dbbackup-helpernet",
 }
 
 LABEL_DEFAULTS = {
@@ -45,6 +46,8 @@ class Config:
             self.singlerun = False
         else: 
             self.singlerun = True
+
+        self.helper_network_name = str(values["helper_network_name"])
 
 def read():
     config_values = {}
