@@ -2,7 +2,7 @@ name: Build Docker Images
 
 env:
   DOCKERHUB_TAG: "foorschtbar/pyd2b2"
-  DOCKERHUB_SHORT_DESCRIPTION: "Python Docker Database Backup is a dockerized service to automatically backup all of your database containers."
+  DOCKERHUB_SHORT_DESCRIPTION: "Python Docker Database Backup is a dockerized service to backup all of your database containers."
   DOCKERHUB_README_FILE: "README.md"
 
 on:
