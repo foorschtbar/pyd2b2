@@ -5,10 +5,13 @@
   ![](https://img.shields.io/docker/pulls/foorschtbar/pyd2b2?style=plastic)
   ![](https://img.shields.io/docker/stars/foorschtbar/pyd2b2?style=plastic)
   ![](https://img.shields.io/docker/image-size/foorschtbar/pyd2b2?style=plastic)
-  ![](https://img.shields.io/github/workflow/status/foorschtbar/pyd2b2-docker/CI%20Workflow?style=plastic)
 ](https://hub.docker.com/repository/docker/foorschtbar/pyd2b2)
+
 [
+  ![](https://img.shields.io/github/workflow/status/foorschtbar/pyd2b2/Build%20Docker%20Images?style=plastic)
+  ![](https://img.shields.io/github/languages/top/foorschtbar/pyd2b2?style=plastic)
   ![](https://img.shields.io/github/last-commit/foorschtbar/pyd2b2?style=plastic)
+  ![](https://img.shields.io/github/license/foorschtbar/pyd2b2?style=plastic)
 ](https://github.com/foorschtbar/pyd2b2)
 
 

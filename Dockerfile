@@ -14,7 +14,9 @@ RUN set -eux; \
     apk add --no-cache --virtual .build-deps gcc musl-dev python3-dev libffi-dev openssl-dev cargo
 
 COPY ./requirements.txt ./
-RUN pip install --no-cache-dir -r requirements.txt
+
+RUN pip install -U pip; \
+    pip install --no-cache-dir -r requirements.txt
 
 # Remove requirements for pyAesCrypt (cryptography) for a smaller image
 RUN set -eux; \

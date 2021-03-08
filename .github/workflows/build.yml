@@ -48,7 +48,7 @@ jobs:
         with:
           push: true
           tags: ${{ env.DOCKERHUB_TAG }}:${{ steps.tag_suffix.outputs.suffix }}
-          platforms: linux/386,linux/amd64,linux/arm/v6,linux/arm/v7,linux/arm64
+          platforms: linux/386,linux/amd64,linux/arm/v7,linux/arm64
 
       - name: Image digests
         run: |
