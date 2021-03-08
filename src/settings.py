@@ -3,7 +3,7 @@ import distutils.util
 from croniter import croniter
 import logging
 
-LABEL_PREFIX = "foorschtbar.dbbackup."
+LABEL_PREFIX = "foorschtbar.pyd2b2."
 
 CONFIG_DEFAULTS = {
     "debug": "false",
@@ -13,7 +13,7 @@ CONFIG_DEFAULTS = {
     "hc_uuid": "",
     "hc_ping_url": "https://hc-ping.com/",
     "schedule": "",
-    "helper_network_name": "dbbackup-helpernet",
+    "helper_network_name": "pyd2b2-helpernet",
 }
 
 LABEL_DEFAULTS = {

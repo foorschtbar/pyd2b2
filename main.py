@@ -37,7 +37,7 @@ def main():
             logging.info(f"Next backup cycle will be at {nextrun}")
         return nextrun
 
-    logging.info(f"+++ Welcome to dbbackup! +++")
+    logging.info(f"+++ Welcome to pyd2b2! +++")
 
     if config.singlerun:
         logging.info("SCHEDULE value is empty, fallback to one-time backup")

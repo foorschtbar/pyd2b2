@@ -1,20 +1,20 @@
-# dbbackup-docker
+# pyd2b2 - Python Docker Database Backup
 
 [
-  ![](https://img.shields.io/docker/v/foorschtbar/dbbackup?style=plastic&sort=date)
-  ![](https://img.shields.io/docker/pulls/foorschtbar/dbbackup?style=plastic)
-  ![](https://img.shields.io/docker/stars/foorschtbar/dbbackup?style=plastic)
-  ![](https://img.shields.io/docker/image-size/foorschtbar/dbbackup?style=plastic)
-  ![](https://img.shields.io/github/workflow/status/foorschtbar/dbbackup-docker/CI%20Workflow?style=plastic)
-](https://hub.docker.com/repository/docker/foorschtbar/dbbackup)
+  ![](https://img.shields.io/docker/v/foorschtbar/pyd2b2?style=plastic&sort=date)
+  ![](https://img.shields.io/docker/pulls/foorschtbar/pyd2b2?style=plastic)
+  ![](https://img.shields.io/docker/stars/foorschtbar/pyd2b2?style=plastic)
+  ![](https://img.shields.io/docker/image-size/foorschtbar/pyd2b2?style=plastic)
+  ![](https://img.shields.io/github/workflow/status/foorschtbar/pyd2b2-docker/CI%20Workflow?style=plastic)
+](https://hub.docker.com/repository/docker/foorschtbar/pyd2b2)
 [
-  ![](https://img.shields.io/github/last-commit/foorschtbar/dbbackup-docker?style=plastic)
-](https://github.com/foorschtbar/dbbackup-docker)
+  ![](https://img.shields.io/github/last-commit/foorschtbar/pyd2b2?style=plastic)
+](https://github.com/foorschtbar/pyd2b2)
 
 
-A dockerized service to automatically backup all of your database containers.
+**Py**thon **D**ocker **D**ata**b**ase **B**ackup is a dockerized service to automatically backup all of your database containers.
 
-Docker Image: `foorschtbar/dbbackup`
+Docker Image: `foorschtbar/pyd2b2`
 
 ## Service Configuration
 
@@ -30,13 +30,13 @@ Name | Default | Description
 `DEBUG` | `false` | Increased output
 `DUMP_UID` | `-1` | UID of dump files. `-1` means default (docker executing user)
 `DUMP_GID` | `-1` | GID of dump files. `-1` means default (docker executing user)
-`HELPER_NETWORK_NAME` | `dbbackup-helpernet` | Name of the temporary created network that dbbackup uses to connect to containers
+`HELPER_NETWORK_NAME` | `pyd2b2-helpernet` | Name of the temporary created network that pyd2b2 uses to connect to containers
 
-You can also define global default values for all container specific labels. Do this by prepending the label name by `GLOBAL_`. For example, to provide a default username, you can set a default value for `foorschtbar.dbbackup.username` by specifying the environment variable `GLOBAL_USERNAME`. See next chapter for reference.
+You can also define global default values for all container specific labels. Do this by prepending the label name by `GLOBAL_`. For example, to provide a default username, you can set a default value for `foorschtbar.pyd2b2.username` by specifying the environment variable `GLOBAL_USERNAME`. See next chapter for reference.
 
 ## Database Configuration
 
-Configure each database container by specifying labels. Every label must be prefixed by `foorschtbar.dbbackup.`:
+Configure each database container by specifying labels. Every label must be prefixed by `foorschtbar.pyd2b2.`:
 
 Name | Default | Description
 --- | --- | ---
@@ -57,7 +57,7 @@ version: "3"
 
 services:
   db-backup: # backup service
-    image: foorschtbar/dbbackup
+    image: foorschtbar/pyd2b2
     environment:
       - TZ=Europe/Berlin
       - SCHEDULE=0 */12 * * *
@@ -72,16 +72,16 @@ services:
     environment:
       - MYSQL_ROOT_PASSWORD=secret-password
     labels:
-      - foorschtbar.dbbackup-docker.enable=true
+      - foorschtbar.pyd2b2.enable=true
 
   database2: # custom database image
     image: user/my-database:latest
     environment:
       - DB_PASSWORD=secret-password
     labels:
-      - foorschtbar.dbbackup.enable=true
-      - foorschtbar.dbbackup.type=postgres
-      - foorschtbar.dbbackup.password=other-password
+      - foorschtbar.pyd2b2.enable=true
+      - foorschtbar.pyd2b2.type=postgres
+      - foorschtbar.pyd2b2.password=other-password
 ```
 
 ## Credits
