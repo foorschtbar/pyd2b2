@@ -10,6 +10,9 @@ import dropbox
 import pyAesCrypt
 import requests
 import logging
+import math
+import natsort
+from pprint import pprint
 from croniter import croniter
 
 from src import settings
@@ -109,7 +112,7 @@ def main():
                     logging.error("Cannot read database type. Please specify via label.")
 
                 network.connect(container, aliases = ["database-backup-target"])
-                outFile = "/dumps/{}_{}.sql".format(container.name, time.strftime("%Y%m%dT%H%M%S"))
+                outFile = "{}/{}_{}.sql".format(config.dump_dir, container.name, time.strftime("%Y%m%dT%H%M%S"))
                 error_code = 0
                 error_text = ""
 
@@ -155,6 +158,9 @@ def main():
                 if error_code > 0:
                     logging.error(f"Return Code: {error_code}; Error Output:")
                     logging.error(f"{error_text}")
+
+                    if os.path.getsize(outFile) == 0:
+                        os.remove(outFile)
                 else:
                     if (os.path.exists(outFile)):
                         noError = True
@@ -207,6 +213,9 @@ def main():
             network.disconnect(own_container_id)
             network.remove()
 
+            # Clean up old backups
+            cleanup(config)
+
             all_backups_successfull = (successful_containers == len(containers))
             msg = f"Finished backup cycle. {successful_containers}/{len(containers)} successful."
 
@@ -220,7 +229,7 @@ def main():
                     logging.error(f"Send request to success url ({config.success_url}) failed. Error Output: {e}")
             
             if config.hc_uuid != "":
-                hcurl = config.hc_ping_url + config.hc_uuid if all_backups_successfull else hcurl + "/fail"
+                hcurl = config.hc_ping_url + config.hc_uuid + ("/fail" if not all_backups_successfull else "")
                 data = msg
                 logging.debug(f"Send ping to Healthchecks.io ({hcurl})...")
                 try:
@@ -238,6 +247,68 @@ def main():
             sys.exit()
         elif config.schedule:
             nextrun = nextRun()
+
+def cleanup(config):
+    logging.info("Clean up old backups (delete older than {} day{}, but keep at least {} file{})".format(
+        config.delete_days,
+        ("s" if config.delete_days > 1 else ""),
+        config.keep_min,
+        ("s" if config.keep_min > 1 else "")
+    ))
+    files = [f for f in natsort.natsorted(os.listdir(config.dump_dir), reverse=True) if os.path.isfile(os.path.join(config.dump_dir, f))]
+    logging.debug(f"Found {len(files)} files")
+    filelist = {}
+    for f in files:
+        #logging.info(f"Parse filename {f}")
+        match = re.search('(.*)_(\d{4}\d{2}\d{2}T\d{2}\d{2}\d{2})', f)
+        filedate = datetime.datetime.strptime(match.group(2), '%Y%m%dT%H%M%S')
+        filedate_diff = datetime.datetime.now() - filedate
+        days = int(math.floor(filedate_diff.days))
+        #logging.info("DB: {} Date: {} Days: {}".format(match.group(1), filedate.strftime("%Y-%m-%d %H:%M:%S"), days))
+        if not match.group(1) in filelist:
+            filelist[match.group(1)] = []
+        filelist[match.group(1)].append({'filename': f, 'date': filedate.strftime("%Y-%m-%d %H:%M:%S"), 'days': days})
+    
+    #pprint(filelist)
+    count_container = 0
+    count_deleted = 0
+    count_dumps_total = 0
+    for name in filelist:
+        count_container += 1
+        
+        logging.debug(f"[{count_container:02d}/{len(filelist):02d}] Clean dumps from container {name}")
+
+        count_dumps = 0
+        for details in filelist[name]:
+            count_dumps_total += 1
+            count_dumps += 1
+
+            fullpath = os.path.join(config.dump_dir, details['filename'])
+
+            delete = False
+            if details['days'] >= config.delete_days and count_dumps > config.keep_min:
+                delete = True
+                count_deleted += 1
+                try:
+                    os.remove(fullpath)
+                except Exception:
+                    logging.exception(f"Failed to delete dump {fullpath}")
+            
+            
+
+            logging.debug("[{:03d}/{:03d}] {} = {:03d} days ({}) -> Delete: {}".format(
+                count_dumps,
+                len(filelist[name]),
+                details['date'],
+                details['days'],
+                fullpath,
+                delete)
+            )
+    logging.info(f"Deleted {count_deleted} of {count_dumps_total} dumps")
+
+            
+        
+        
 
 if __name__ == '__main__':
     main()

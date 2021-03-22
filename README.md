@@ -33,6 +33,9 @@ Name | Default | Description
 `DEBUG` | `false` | Increased output
 `DUMP_UID` | `-1` | UID of dump files. `-1` means default (docker executing user)
 `DUMP_GID` | `-1` | GID of dump files. `-1` means default (docker executing user)
+`DUMP_DIR` | `/dumps` | Folder where database dumps are saved
+`DELETE_DAYS` | `14` | Dump files older than this number of days should be deleted 
+`KEEP_MIN` | `20` | Number of dump files to keep for each container at least
 `HELPER_NETWORK_NAME` | `pyd2b2-helpernet` | Name of the temporary created network that pyd2b2 uses to connect to containers
 
 You can also define global default values for all container specific labels. Do this by prepending the label name by `GLOBAL_`. For example, to provide a default username, you can set a default value for `foorschtbar.pyd2b2.username` by specifying the environment variable `GLOBAL_USERNAME`. See next chapter for reference.
@@ -48,7 +51,7 @@ Name | Default | Description
 `username` | `root` | Login user
 `password` | (none) | Login password
 `port` | `auto` | Port (inside container). Possible values: `auto` or a valid port number. Auto gets the default port corresponding to the type.
-`compress` | `false` | Compress SQL Dump with gzip
+`compress` | `true` | Compress SQL Dump with gzip
 `encryption_passphrase` | _empty_ | A passphrase to encrypt the backup files. No encryption if empty.
 
 ## Example

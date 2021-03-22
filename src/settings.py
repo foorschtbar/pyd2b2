@@ -14,6 +14,9 @@ CONFIG_DEFAULTS = {
     "hc_ping_url": "https://hc-ping.com/",
     "schedule": "",
     "helper_network_name": "pyd2b2-helpernet",
+    "dump_dir": "/dumps",
+    "keep_min": "20",
+    "delete_days": "14",
 }
 
 LABEL_DEFAULTS = {
@@ -38,6 +41,19 @@ class Config:
         self.success_url = str(values["success_url"])
         self.hc_uuid = str(values["hc_uuid"])
         self.hc_ping_url = str(values["hc_ping_url"])
+
+        self.dump_dir = str(values["dump_dir"]).strip()
+        if self.dump_dir.endswith('/'):
+            self.dump_dir = self.dump_dir[:-1]
+
+        self.keep_min = int(values["keep_min"])
+        if self.keep_min < 0:
+            raise AttributeError("Invalid keep_min value")
+
+        self.delete_days = int(values["delete_days"])
+        if self.delete_days < 0:
+            raise AttributeError("Invalid delete_days value")
+
         self.schedule = str(values["schedule"])
         if self.schedule and not croniter.is_valid(self.schedule):
             raise AttributeError("Invalid schedule syntax")
