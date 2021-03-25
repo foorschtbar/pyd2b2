@@ -1,5 +1,10 @@
 FROM python:3-alpine
 
+# Fix problem with cargo who breaks the GitHub Actions CI/CD pipline
+# https://github.com/rust-lang/cargo/issues/9187
+ENV CARGO_NET_GIT_FETCH_WITH_CLI=true
+
+
 # Install db clients
 RUN set -eux; \
     apk --no-cache add \
@@ -11,7 +16,7 @@ RUN set -eux; \
 # https://cryptography.io/en/latest/installation.html#rust
 # https://stackoverflow.com/questions/46221063/what-is-build-deps-for-apk-add-virtual-command
 RUN set -eux; \
-    apk add --no-cache --virtual .build-deps gcc musl-dev python3-dev libffi-dev openssl-dev cargo
+    apk add --no-cache --virtual .build-deps git gcc musl-dev python3-dev libffi-dev openssl-dev cargo
 
 COPY ./requirements.txt ./
 
