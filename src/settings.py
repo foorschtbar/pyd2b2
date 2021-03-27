@@ -17,6 +17,7 @@ CONFIG_DEFAULTS = {
     "dump_dir": "/dumps",
     "keep_min": "20",
     "delete_days": "14",
+    "container_filter":"",
 }
 
 LABEL_DEFAULTS = {
@@ -41,6 +42,7 @@ class Config:
         self.success_url = str(values["success_url"])
         self.hc_uuid = str(values["hc_uuid"])
         self.hc_ping_url = str(values["hc_ping_url"])
+        self.container_filter = str(values["container_filter"])
 
         self.dump_dir = str(values["dump_dir"]).strip()
         if self.dump_dir.endswith('/'):

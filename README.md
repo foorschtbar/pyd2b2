@@ -36,6 +36,7 @@ Name | Default | Description
 `DUMP_DIR` | `/dumps` | Folder where database dumps are saved
 `DELETE_DAYS` | `14` | Dump files older than this number of days should be deleted 
 `KEEP_MIN` | `20` | Number of dump files to keep for each container at least
+`CONTAINER_FILTER` | (none) | For testing purposes: A comma-separated list of container names. Filter all containers that already have the `enable`-label. Example: `app-db, database2`
 `HELPER_NETWORK_NAME` | `pyd2b2-helpernet` | Name of the temporary created network that pyd2b2 uses to connect to containers
 
 You can also define global default values for all container specific labels. Do this by prepending the label name by `GLOBAL_`. For example, to provide a default username, you can set a default value for `foorschtbar.pyd2b2.username` by specifying the environment variable `GLOBAL_USERNAME`. See next chapter for reference.

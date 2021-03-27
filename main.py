@@ -6,7 +6,6 @@ import time
 import sys
 import humanize
 import ftplib
-import dropbox
 import pyAesCrypt
 import requests
 import logging
@@ -94,6 +93,13 @@ def main():
 
             network = docker_client.networks.create(config.helper_network_name)
             network.connect(own_container_id)
+
+            container_filter = [x.strip() for x in config.container_filter.split(',') if x]
+
+            if len(container_filter) > 0:
+                logging.info(f"Container filter is active! Process only this names: {container_filter}")
+                # Removes all containers from the list, which are not included in the filter
+                containers = [x for x in containers if x.name in container_filter]
 
             for i, container in enumerate(containers):
                 database = Database(container, global_labels)
@@ -296,14 +302,14 @@ def cleanup(config):
             
             
 
-            logging.debug("[{:03d}/{:03d}] {} = {:03d} days ({}) -> Delete: {}".format(
-                count_dumps,
-                len(filelist[name]),
-                details['date'],
-                details['days'],
-                fullpath,
-                delete)
-            )
+            # logging.debug("[{:03d}/{:03d}] {} = {:03d} days ({}) -> Delete: {}".format(
+            #     count_dumps,
+            #     len(filelist[name]),
+            #     details['date'],
+            #     details['days'],
+            #     fullpath,
+            #     delete)
+            # )
     logging.info(f"Deleted {count_deleted} of {count_dumps_total} dumps")
 
             
