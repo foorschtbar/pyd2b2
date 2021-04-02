@@ -17,7 +17,8 @@
 
 **Py**thon **D**ocker **D**ata**b**ase **B**ackup is a dockerized service to automatically backup all of your database containers.
 
-Docker Image: `foorschtbar/pyd2b2`
+* GitHub: [foorschtbar/pyd2b2](https://github.com/foorschtbar/pyd2b2)
+* Docker Hub: [foorschtbar/pyd2b2](https://hub.docker.com/r/foorschtbar/pyd2b2)
 
 ## Service Configuration
 
