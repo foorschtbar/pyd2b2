@@ -45,7 +45,8 @@ jobs:
             echo "::set-output name=suffix::"
           fi
 
-      - uses: nelonoel/branch-name@v1.0.1
+      - name: Get branche name
+        uses: nelonoel/branch-name@v1.0.1
 
       - name: tag suffix
         id: tag_suffix
