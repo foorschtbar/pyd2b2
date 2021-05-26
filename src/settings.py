@@ -13,6 +13,7 @@ CONFIG_DEFAULTS = {
     "hc_uuid": "",
     "hc_ping_url": "https://hc-ping.com/",
     "schedule": "",
+    "startup": "",
     "helper_network_name": "pyd2b2-helpernet",
     "dump_dir": "/dumps",
     "keep_min": "20",
@@ -59,6 +60,8 @@ class Config:
         self.schedule = str(values["schedule"])
         if self.schedule and not croniter.is_valid(self.schedule):
             raise AttributeError("Invalid schedule syntax")
+
+        self.startup = distutils.util.strtobool(values["startup"])
 
         if self.schedule:
             self.singlerun = False

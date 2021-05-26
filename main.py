@@ -44,7 +44,11 @@ def main():
     if config.singlerun:
         logging.info("SCHEDULE value is empty, fallback to one-time backup")
     else:
-        nextrun = nextRun(True)
+        if config.startup:
+            nextrun = datetime.datetime.now()
+        else:
+            nextrun = nextRun(True)
+        
         logging.info(f"Schedule is activated. Next backup cycle will be at {nextrun}")
 
     # clean up old networks

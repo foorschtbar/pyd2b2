@@ -28,6 +28,7 @@ Name | Default | Description
 --- | --- | ---
 `TZ` | `UTC` | Time zone for schedule and times in log messages
 `SCHEDULE` | (none) | Backup interval in [cron like format](http://en.wikipedia.org/wiki/Cron). If _empty_ or _not set_, the cycle runs only once (one-time backup).
+`STARTUP` | (none) | Backup all databases at startup.
 `SUCCESS_URL` | (none) | A url who called after every successfull backup cycle
 `HC_UUID`  | (none) | Insert a [HealthChecks.io](https://healthchecks.io/) UUID for monitoring
 `HC_PING_URL`  | `https://hc-ping.com/` | [HealthChecks.io](https://healthchecks.io/) Ping Server URL if you run your own server
@@ -69,6 +70,7 @@ services:
     environment:
       - TZ=Europe/Berlin
       - SCHEDULE=0 */12 * * *
+      - STARTUP=true
       - GLOBAL_USERNAME=root
       - GLOBAL_ENCRYPTION_PASSPHRASE=secret-password
       - HC_UUID=aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee
