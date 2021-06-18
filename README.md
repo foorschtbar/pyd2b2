@@ -20,6 +20,12 @@
 * GitHub: [foorschtbar/pyd2b2](https://github.com/foorschtbar/pyd2b2)
 * Docker Hub: [foorschtbar/pyd2b2](https://hub.docker.com/r/foorschtbar/pyd2b2)
 
+## Supported Databases
+
+- MySQL/MariaDB
+- PostgreSQL
+- InfluxDB 2.0 (ARM64/AMD64 only)
+
 ## Service Configuration
 
 Configure the backup service by specifying environment variables:
@@ -50,9 +56,10 @@ Configure each database container by specifying labels. Every label must be pref
 Name | Default | Description
 --- | --- | ---
 `enable` | `false` | Enable backup for this container
-`type` | `auto` | Specify type of database. Possible values: `auto, mysql, mariadb, postgres`. Auto tries to get the type from the image name (for specific well known images)
+`type` | `auto` | Specify type of database. Possible values: `auto, mysql, mariadb, postgres, influxdb`. Auto tries to get the type from the image name (for specific well known images)
 `username` | `root` | Login user
 `password` | (none) | Login password
+`token` | (none) | InfluxDB 2.0 access token
 `port` | `auto` | Port (inside container). Possible values: `auto` or a valid port number. Auto gets the default port corresponding to the type.
 `compress` | `true` | Compress SQL Dump with gzip
 `encryption_passphrase` | _empty_ | A passphrase to encrypt the backup files. No encryption if empty.

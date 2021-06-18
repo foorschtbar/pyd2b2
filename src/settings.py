@@ -25,6 +25,7 @@ LABEL_DEFAULTS = {
     "enable": "false",
     "username": "root",
     "password": "",
+    "token": "",
     "type": "auto",
     "port": "auto",
     "compress": "true",

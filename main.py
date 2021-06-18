@@ -11,6 +11,7 @@ import requests
 import logging
 import math
 import natsort
+import shutil
 from pprint import pprint
 from croniter import croniter
 
@@ -116,13 +117,16 @@ def main():
                     database.type.name
                 ))
 
-                logging.debug("Login {}@host:{} using Password: {}".format(database.username, database.port, "YES" if len(database.password) > 0 else "NO"))
+                if database.type == DatabaseType.influxdb:
+                    logging.debug("Login http://database-backup-target:{} using Token".format(database.port))
+                else:
+                    logging.debug("Login {}@database-backup-target:{} using Password: {}".format(database.username, database.port, "YES" if len(database.password) > 0 else "NO"))
 
                 if database.type == DatabaseType.unknown:
                     logging.error("Cannot read database type. Please specify via label.")
 
                 network.connect(container, aliases = ["database-backup-target"])
-                outFile = "{}/{}_{}.sql".format(config.dump_dir, container.name, time.strftime("%Y%m%dT%H%M%S"))
+                outFile = "{}/{}_{}".format(config.dump_dir, container.name, time.strftime("%Y%m%dT%H%M%S"))
                 error_code = 0
                 error_text = ""
 
@@ -132,13 +136,15 @@ def main():
                     env = os.environ.copy()
 
                     if database.type == DatabaseType.mysql or database.type == DatabaseType.mariadb:
+                        outFile = outFile + ".sql"
                         subprocess.run(
-                            ("mysqldump --host=database-backup-target --user={} --password={}"
+                            ("mysqldump --host=database-backup-target --port={} --user={} --password={}"
                             " --all-databases"
                             " --ignore-database=mysql"
                             " --ignore-database=information_schema"
                             " --ignore-database=performance_schema"
                             " > {}").format(
+                                database.port,
                                 database.username, 
                                 database.password,
                                 outFile),
@@ -148,12 +154,26 @@ def main():
                             env=env,
                         ).check_returncode()
                     elif database.type == DatabaseType.postgres:
+                        outFile = outFile + ".sql"
                         env["PGPASSWORD"] = database.password
                         subprocess.run(
-                            ("pg_dumpall --host=database-backup-target --username={}"
+                            ("pg_dumpall --host=database-backup-target --port={} --username={}"
                             " > {}").format(
+                                database.port,
                                 database.username, 
                                 outFile),
+                            shell=True,
+                            text=True,
+                            capture_output=True,
+                            env=env
+                        ).check_returncode()
+                    elif database.type == DatabaseType.influxdb:
+                        subprocess.run(
+                            ("influx --host http://database-backup-target:{} --token {} backup {}/").format(
+                                database.port,
+                                database.token,
+                                outFile
+                                ),
                             shell=True,
                             text=True,
                             capture_output=True,
@@ -168,25 +188,42 @@ def main():
                 if error_code > 0:
                     logging.error(f"Return Code: {error_code}; Error Output:")
                     logging.error(f"{error_text}")
-
-                    if os.path.getsize(outFile) == 0:
-                        os.remove(outFile)
+                    
+                    if os.path.exists(outFile):
+                        if os.path.isdir(outFile):
+                            shutil.rmtree(outFile)
+                        else:
+                            os.remove(outFile)
                 else:
                     if (os.path.exists(outFile)):
                         noError = True
-                        uncompressed_size = os.path.getsize(outFile)
-                        if database.compress and uncompressed_size > 0:
+                        if os.path.isdir(outFile):
+                            targetFile = outFile + ".tar.gz"
+                            uncompressed_size = 0
+                            for ele in os.scandir(outFile):
+                                uncompressed_size+=os.stat(ele).st_size
+                        else:
+                            targetFile = outFile + ".gz"
+                            uncompressed_size = os.path.getsize(outFile)
+                        if (database.compress or os.path.isdir(outFile)) and uncompressed_size > 0:
                             logging.debug(f"Compressing {humanize.naturalsize(uncompressed_size)}...")
-                            if os.path.exists(outFile + ".gz"):
-                                os.remove(outFile + ".gz")
+                            if os.path.exists(targetFile):
+                                os.remove(targetFile)
 
                             try:
-                                subprocess.check_output("gzip {}".format(outFile), shell=True)
+                                if os.path.isdir(outFile):
+                                    subprocess.check_output("cd {} && tar cvzf {} *".format(outFile, targetFile), shell=True)
+                                else:
+                                    subprocess.check_output("gzip {}".format(outFile), shell=True)
                             except Exception as e:
                                 logging.error(f"Error Output: {e}")
                                 noError = False
 
-                            outFile = outFile + ".gz"
+                            if noError and os.path.isdir(outFile):
+                                shutil.rmtree(outFile)
+
+                            outFile = targetFile
+                            
                             compressed_size = os.path.getsize(outFile)
                         else:
                             database.compress = False

@@ -1,3 +1,10 @@
+FROM python:3-alpine as builder
+
+WORKDIR /tmp
+RUN set -eux; \
+    wget https://dl.influxdata.com/influxdb/releases/influxdb2-2.0.7-linux-amd64.tar.gz; \
+    tar --strip-components=1 -xvzf influxdb2-2.0.7-linux-amd64.tar.gz -C /tmp
+
 FROM python:3-alpine
 
 # Fix problem with cargo who breaks the GitHub Actions CI/CD pipline
@@ -11,6 +18,8 @@ RUN set -eux; \
     mariadb-client \
     postgresql-client \
     tzdata
+
+COPY --from=builder /tmp/influx /bin/influx
 
 # Install requirements for pyAesCrypt (cryptography)
 # https://cryptography.io/en/latest/installation.html#rust
