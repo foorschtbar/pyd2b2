@@ -12,6 +12,7 @@ class DatabaseType(Enum):
   mysql = 1
   mariadb = 2
   postgres = 3
+  influxdb = 4
 
 KNOWN_IMAGES = {
   # MySQL
@@ -26,6 +27,8 @@ KNOWN_IMAGES = {
   # Postgres
   "postgres": DatabaseType.postgres,
   "bitnami/postgresql": DatabaseType.postgres,
+  # InfluxDB 2.0
+  "influxdb": DatabaseType.influxdb,
 }
 
 TYPE_DEFAULTS = {
@@ -40,6 +43,9 @@ TYPE_DEFAULTS = {
   },
   DatabaseType.postgres: {
     "port": 5432,
+  },
+  DatabaseType.influxdb: {
+    "port": 8086,
   }
 }
 
@@ -58,6 +64,7 @@ class Database:
     if "port" in values: self.port = values["port"]
     if "username" in values: self.username = values["username"]
     if "password" in values: self.password = values["password"]
+    if "token" in values: self.token = values["token"]
     if "compress" in values: self.compress = values["compress"]
     if "encryption_passphrase" in values: self.encryption_passphrase = values["encryption_passphrase"]
 
