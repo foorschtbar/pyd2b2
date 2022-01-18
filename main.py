@@ -14,6 +14,7 @@ import natsort
 import shutil
 from pprint import pprint
 from croniter import croniter
+from os import path
 
 from src import settings
 from src import docker
@@ -93,7 +94,13 @@ def main():
                 except requests.RequestException as e:
                     logging.error(f"Failed to start time measuring to Healthchecks.io. Error Output: {e}")
 
-            own_container_id = subprocess.check_output("basename $(cat /proc/1/cpuset)", shell=True, text=True).strip()
+            if path.isfile("/proc/1/cpuset"):
+                own_container_id = subprocess.check_output("basename $(cat /proc/1/cpuset)", shell=True, text=True).strip()
+            elif path.isfile("/proc/self/cgroup"):
+                own_container_id = subprocess.check_output("basename $(cat /proc/self/cgroup | head -n 1)", shell=True, text=True).strip()
+            else:
+                own_container_id = subprocess.check_output("docker_api \"/containers/$(hostname)/json\" | jq -r '.Id')", shell=True, text=True).strip()
+                
             successful_containers = 0
 
             network = docker_client.networks.create(config.helper_network_name)
@@ -344,8 +351,8 @@ def cleanup(config):
                     os.remove(fullpath)
                 except Exception:
                     logging.exception(f"Failed to delete dump {fullpath}")
-            
-            
+
+
 
             # logging.debug("[{:03d}/{:03d}] {} = {:03d} days ({}) -> Delete: {}".format(
             #     count_dumps,
@@ -357,9 +364,9 @@ def cleanup(config):
             # )
     logging.info(f"Deleted {count_deleted} of {count_dumps_total} dumps")
 
-            
-        
-        
+
+
+
 
 if __name__ == '__main__':
     main()
