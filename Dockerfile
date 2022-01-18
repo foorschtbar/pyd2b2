@@ -2,8 +2,8 @@ FROM python:3-alpine as builder
 
 WORKDIR /tmp
 RUN set -eux; \
-    wget https://dl.influxdata.com/influxdb/releases/influxdb2-2.0.7-linux-amd64.tar.gz; \
-    tar --strip-components=1 -xvzf influxdb2-2.0.7-linux-amd64.tar.gz -C /tmp
+    wget https://dl.influxdata.com/influxdb/releases/influxdb2-client-2.2.1-linux-amd64.tar.gz; \
+    tar --strip-components=1 -xvzf influxdb2-client-2.2.1-linux-amd64.tar.gz -C /tmp
 
 FROM python:3-alpine
 

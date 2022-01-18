@@ -13,7 +13,7 @@ CONFIG_DEFAULTS = {
     "hc_uuid": "",
     "hc_ping_url": "https://hc-ping.com/",
     "schedule": "",
-    "startup": "",
+    "startup": "false",
     "helper_network_name": "pyd2b2-helpernet",
     "dump_dir": "/dumps",
     "keep_min": "20",

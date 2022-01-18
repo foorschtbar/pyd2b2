@@ -129,6 +129,7 @@ def main():
                 outFile = "{}/{}_{}".format(config.dump_dir, container.name, time.strftime("%Y%m%dT%H%M%S"))
                 error_code = 0
                 error_text = ""
+                error_stdout = ""
 
                 logging.debug("Dumping all databases...")
                 
@@ -169,7 +170,7 @@ def main():
                         ).check_returncode()
                     elif database.type == DatabaseType.influxdb:
                         subprocess.run(
-                            ("influx --host http://database-backup-target:{} --token {} backup {}/").format(
+                            ("influx backup --host http://database-backup-target:{} --token {} {}/").format(
                                 database.port,
                                 database.token,
                                 outFile
@@ -182,12 +183,15 @@ def main():
                 except subprocess.CalledProcessError as e:
                     error_code = e.returncode
                     error_text = f"\n{e.stderr.strip()}".replace('\n', '\n> ').strip()
+                    error_stdout = f"\n{e.stdout.strip()}".replace('\n', '\n> ').strip()
 
                 network.disconnect(container)
 
                 if error_code > 0:
                     logging.error(f"Return Code: {error_code}; Error Output:")
                     logging.error(f"{error_text}")
+                    logging.debug(f"Standard Output:")
+                    logging.debug(f"{error_stdout}")
                     
                     if os.path.exists(outFile):
                         if os.path.isdir(outFile):
