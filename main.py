@@ -146,7 +146,7 @@ def main():
                     if database.type == DatabaseType.mysql or database.type == DatabaseType.mariadb:
                         outFile = outFile + ".sql"
                         subprocess.run(
-                            ("mysqldump --host=database-backup-target --port={} --user={} --password={}"
+                            ("mysqldump --host=database-backup-target --port={} --user={} --password='{}'"
                             " --all-databases"
                             " --ignore-database=mysql"
                             " --ignore-database=information_schema"
