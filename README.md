@@ -1,5 +1,16 @@
 # pyd2b2 - Python Docker Database Backup
 
+<br/>
+<br/>
+<br/>
+
+| :exclamation:  All features ( ecluding InfluxDB support) are backported to [jan-di/docker-database-backup](https://github.com/jan-di/docker-database-backup), please use this repo. Thank u! |
+|-----------------------------------------|
+
+<br/>
+<br/>
+<br/>
+
 [
 ![](https://img.shields.io/docker/v/foorschtbar/pyd2b2?style=plastic&sort=date)
 ![](https://img.shields.io/docker/pulls/foorschtbar/pyd2b2?style=plastic)
